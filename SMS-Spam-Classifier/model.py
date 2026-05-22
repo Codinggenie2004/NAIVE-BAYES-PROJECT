@@ -7,11 +7,8 @@ Mirrors the approach from the PySpark Naive Bayes Spam Classifier notebook.
 import os
 import pickle
 import json
-import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 # ── Paths ────────────────────────────────────────────────────────────────────
 _DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +48,9 @@ def load_model() -> bool:
 def train_model():
     """Load dataset, vectorize text, train Naive Bayes, and store metrics."""
     global _model, _vectorizer, _stats
+    import pandas as pd
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
     # 1. Load dataset  (tab-separated, no header — same as PySpark notebook)
     df = pd.read_csv(DATA_PATH, sep="\t", header=None, names=["label", "message"])

@@ -1,0 +1,1 @@
+{"accuracy": 98.68, "precision": 96.26, "recall": 93.64, "f1": 94.93, "confusion_matrix": [[1444, 8], [14, 206]], "total_samples": 5572, "train_samples": 3900, "test_samples": 1672, "spam_count": 747, "ham_count": 4825, "vocab_size": 3318}
