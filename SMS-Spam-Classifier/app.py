@@ -21,10 +21,10 @@ app = Flask(__name__)
 if os.environ.get("FLASK_ENV") == "production" or os.environ.get("HTTP_X_FORWARDED_FOR"):
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
-# Preload/train model on startup to make the first request instant
-logging.info("Initializing Naive Bayes model...")
-get_stats()
-logging.info("Model initialization complete.")
+# Model is loaded lazily on first request to avoid blocking
+# Vercel serverless cold-start. The model.pkl is pre-trained and
+# committed to the repo, so load_model() will find it on disk instantly.
+logging.info("Flask app initialized. Model will be loaded on first request.")
 
 
 @app.route("/")
