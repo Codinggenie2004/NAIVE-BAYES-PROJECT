@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: sms-spam-classifier
+    env: python
+    buildCommand: pip install -r SMS-Spam-Classifier/requirements-prod.txt && python SMS-Spam-Classifier/train.py
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --chdir SMS-Spam-Classifier app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.10.0

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Spam Classifier — Naive Bayes</title>
+    <meta name="description" content="Classify SMS messages as Spam or Ham using a Naive Bayes machine learning model trained on the SMS Spam Collection dataset.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Background orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🛡️</span>
+                <h1>SMS Spam Classifier</h1>
+            </div>
+            <p class="subtitle">Powered by <strong>Naive Bayes</strong> · Trained on 5,574 real SMS messages</p>
+        </header>
+
+        <!-- Classifier Card -->
+        <section class="glass-card classifier-card" id="classifierCard">
+            <h2 class="section-title">Classify a Message</h2>
+            <div class="input-group">
+                <textarea id="messageInput" placeholder="Type or paste an SMS message here..." rows="3"></textarea>
+                <div class="char-count"><span id="charCount">0</span> characters</div>
+            </div>
+            <button class="btn-predict" id="predictBtn" onclick="classifyMessage()">
+                <span class="btn-text">Analyze Message</span>
+                <span class="btn-loader" id="btnLoader"></span>
+            </button>
+
+            <!-- Result -->
+            <div class="result-container" id="resultContainer">
+                <div class="result-badge" id="resultBadge">
+                    <span class="result-icon" id="resultIcon"></span>
+                    <span class="result-label" id="resultLabel"></span>
+                </div>
+                <div class="confidence-section">
+                    <div class="confidence-bar-wrapper">
+                        <div class="confidence-labels">
+                            <span>Ham</span>
+                            <span>Spam</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill-ham" id="hamBar"></div>
+                            <div class="confidence-fill-spam" id="spamBar"></div>
+                        </div>
+                        <div class="confidence-values">
+                            <span id="hamPercent">0%</span>
+                            <span id="spamPercent">0%</span>
+                        </div>
+                    </div>
+                    <p class="confidence-text">Confidence: <strong id="confidenceValue">0%</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sample Messages -->
+        <section class="glass-card samples-card">
+            <h2 class="section-title">Try These Samples</h2>
+            <div class="samples-grid">
+                <button class="sample-btn ham-sample" onclick="fillSample(this)">
+                    <span class="sample-tag">Ham</span>
+                    Hey, are you coming to the party tonight? Let me know!
+                </button>
+                <button class="sample-btn spam-sample" onclick="fillSample(this)">
+                    <span class="sample-tag">Spam</span>
+                    WINNER!! You have been selected to receive a £1000 prize! Call 09061701461 now!
+                </button>
+                <button class="sample-btn ham-sample" onclick="fillSample(this)">
+                    <span class="sample-tag">Ham</span>
+                    Ok lar... Joking wif u oni...
+                </button>
+                <button class="sample-btn spam-sample" onclick="fillSample(this)">
+                    <span class="sample-tag">Spam</span>
+                    Free entry in 2 a wkly comp to win FA Cup final tkts. Text FA to 87121
+                </button>
+                <button class="sample-btn ham-sample" onclick="fillSample(this)">
+                    <span class="sample-tag">Ham</span>
+                    I'm gonna be home soon and i don't want to talk about this stuff anymore tonight, k?
+                </button>
+                <button class="sample-btn spam-sample" onclick="fillSample(this)">
+                    <span class="sample-tag">Spam</span>
+                    Urgent! Your mobile number has been awarded a £2000 prize! Call 09058094455 now
+                </button>
+            </div>
+        </section>
+
+        <!-- Model Stats -->
+        <section class="glass-card stats-card" id="statsCard">
+            <h2 class="section-title">Model Performance</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-item">
+                    <div class="stat-value" id="statAccuracy">—</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statPrecision">—</div>
+                    <div class="stat-label">Precision</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statRecall">—</div>
+                    <div class="stat-label">Recall</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="statF1">—</div>
+                    <div class="stat-label">F1 Score</div>
+                </div>
+            </div>
+
+            <div class="dataset-info">
+                <h3>Dataset Info</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Total Messages</span>
+                        <span class="info-value" id="infoTotal">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ham Messages</span>
+                        <span class="info-value" id="infoHam">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Spam Messages</span>
+                        <span class="info-value" id="infoSpam">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Vocabulary Size</span>
+                        <span class="info-value" id="infoVocab">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Train Set</span>
+                        <span class="info-value" id="infoTrain">—</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Test Set</span>
+                        <span class="info-value" id="infoTest">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confusion Matrix -->
+            <div class="confusion-matrix-section">
+                <h3>Confusion Matrix</h3>
+                <table class="confusion-table" id="confusionTable">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Predicted Ham</th>
+                            <th>Predicted Spam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="row-label">Actual Ham</td>
+                            <td class="cm-cell cm-tp" id="cmTN">—</td>
+                            <td class="cm-cell cm-fp" id="cmFP">—</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">Actual Spam</td>
+                            <td class="cm-cell cm-fn" id="cmFN">—</td>
+                            <td class="cm-cell cm-tn" id="cmTP">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with <strong>scikit-learn</strong> · Multinomial Naive Bayes · SMS Spam Collection Dataset (UCI)</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
